@@ -9,7 +9,7 @@ let commands = {
             '&nbsp;&nbsp;&nbsp;&nbsp;Login using the given username.<br><br>';
         },
 
-        callback: function (args) {            
+        callback: function (args) {
             let user = this.utils.arrayOfObjectsHasKeyValue(lightdm.users, 'name', args[0]);
 
             if (!user) {
@@ -20,21 +20,21 @@ let commands = {
             if(lightdm.in_authentication) {
                 lightdm.cancel_authentication();
             }
-            
+
             this.session = user.session !== null && user.session === this.session ? user.session : this.session;
-            lightdm.start_authentication(user.name);    
+            lightdm.start_authentication(user.name);
             return true;
         },
 
         password: function(password, response) {
             if (lightdm.in_authentication) {
-                setTimeout(function(){ 
+                setTimeout(function(){
                     lightdm.respond(password);
                 }, 200);
-    
+
                 return null;
             }
-    
+
             return `call login [user]<br>`;
         }
     },
@@ -48,7 +48,7 @@ let commands = {
             '&nbsp;&nbsp;&nbsp;&nbsp;Login to an existing session.<br><br>';
         },
 
-        callback: function (args) {            
+        callback: function (args) {
             let user = this.utils.arrayOfObjectsHasKeyValue(lightdm.users, 'logged_in', true);
 
             if (!user) {
@@ -59,7 +59,7 @@ let commands = {
             if(lightdm.in_authentication) {
                 lightdm.cancel_authentication();
             }
-            
+
             this.session = user.session !== null ? user.session : lightdm.default_session;
             lightdm.start_authentication(user[0].name);
             return true;
@@ -67,13 +67,13 @@ let commands = {
 
         password: function(password, response) {
             if (lightdm.in_authentication) {
-                setTimeout(function(){ 
+                setTimeout(function(){
                     lightdm.respond(password);
                 }, 200);
-    
+
                 return null;
             }
-    
+
             return `call login [user]<br>`;
         }
     },
@@ -89,7 +89,7 @@ let commands = {
 
         callback: function(args) {
             let users = '';
-            
+
             lightdm.users.forEach(function(user) {
                 users += '<span class="stdout-off-white">' + user.name + "</span><br>";
             });
@@ -109,7 +109,7 @@ let commands = {
 
         callback: function(args) {
             sessions = '';
-            
+
             lightdm.sessions.forEach(function(session) {
                 sessions += '<span class="stdout-off-white">' + session.key + "</span><br>";
             });
@@ -139,6 +139,58 @@ let commands = {
 
             this.session = session.key;
             return true;
+        }
+    },
+    config: {
+        help: function(args) {
+            return '<br><strong>NAME</strong><br>'+
+            '&nbsp;&nbsp;&nbsp;&nbsp;config<br><br>'+
+            '<strong>SYNOPSIS</strong><br>'+
+            '&nbsp;&nbsp;&nbsp;&nbsp;config list<br><br>'+
+            '&nbsp;&nbsp;&nbsp;&nbsp;config set [SETTING] [VALUE]<br><br>'+
+            '&nbsp;&nbsp;&nbsp;&nbsp;config get [SETTING]<br><br>'+
+            '<strong>DESCRIPTION</strong><br>'+
+            '&nbsp;&nbsp;&nbsp;&nbsp;List available configuration options. Change a setting or show its current value.<br><br>';
+        },
+
+        configOptions: [
+            'background'
+        ],
+
+        actions: {
+            list: function() {
+                options = '<strong>AVAILABLE OPTIONS</strong><br>';
+
+                commands.config.configOptions.forEach(function(option) {
+                    options += '- <span class="stdout-off-white">' + option + "</span><br>";
+                });
+
+                return options;
+            },
+            get: function(setting) {
+                return true;
+            },
+            set: function(setting) {
+                return true;
+            },
+        },
+
+        callback: function(args) {
+            if (!args.length) {
+                this.stderr(`bash: Please provide at least one argument.`);
+
+                return false;
+            }
+
+            let action = args[0];
+
+            if (!commands.config.actions.hasOwnProperty(action)) {
+                this.stderr(`bash: invalid action: ${args[0]}. Available actions: ${commands.config.actions.join(', ')}`);
+
+                return false;
+            }
+
+            return commands.config.actions[action]();
         }
     },
     poweroff: {
@@ -238,7 +290,7 @@ let commands = {
 
             if (this.commands.exists(stdin)) {
                 let command = this.commands.get(stdin);
-                
+
                 if (this.utils.hasProperty(command, 'help')) {
                     stdout += command['help']();
                 }
