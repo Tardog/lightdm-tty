@@ -159,18 +159,18 @@ let commands = {
 
         actions: {
             list: function() {
-                options = '<strong>AVAILABLE OPTIONS</strong><br>';
+                options = '<br><strong>AVAILABLE OPTIONS</strong><br>';
 
                 commands.config.configOptions.forEach(function(option) {
                     options += '- <span class="stdout-off-white">' + option + "</span><br>";
                 });
 
-                return options;
+                return options + '<br>';
             },
-            get: function(setting) {
-                return true;
+            get: function(option) {
+                return this.themeConfig.get(option);
             },
-            set: function(setting) {
+            set: function(option) {
                 return true;
             },
         },

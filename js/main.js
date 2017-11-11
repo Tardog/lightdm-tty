@@ -17,6 +17,14 @@ class tty {
         this.debug = true;
         this.utils = new utils();
 
+        // Configuration
+        this.themeConfig = new ThemeConfig();
+        this.backgroundHandler = new BackgroundHandler();
+
+        let backgroundImage = this.themeConfig.get('background');
+
+        this.backgroundHandler.setImage(backgroundImage);
+
         // Check logged in user
         let user = this.utils.arrayOfObjectsHasKeyValue(lightdm.users, 'logged_in', true);
 
@@ -42,7 +50,7 @@ class tty {
 
         // Init command handler
         this.commands = new commandHandler(commands, this.utils);
-        
+
         if (this.commands.exists('motd')) {
             this.stdout(this.commands.get('motd').callback());
         }
@@ -153,7 +161,7 @@ class tty {
 
             let wrapper = document.getElementById('terminal');
             wrapper.scrollTop = wrapper.scrollHeight;
-            
+
             e.preventDefault();
         }
     }
